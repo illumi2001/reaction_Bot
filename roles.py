@@ -29,15 +29,16 @@ async def on_raw_reaction_add(payload):
     try:
         role_id = emoji_role_dict[payload.emoji.id] # Access role id from dict
     except KeyError:
-        print("No role matching emoji id")
+        print(f'Error: No role matching emoji id {payload.emoji.id}')
         return
     role = guild.get_role(role_id) # Role object
     if role is None:
+        print(f'Error: Role with ID {role_id} does not exist')
         return
     try:
         await payload.member.add_roles(role)
     except discord.HTTPException:
-        print("Error adding role")
+        print(f'Error: Adding role {role.name} to user {payload.member.name} failed')
         return
 
 @client.event
@@ -52,10 +53,11 @@ async def on_raw_reaction_remove(payload):
     try:
         role_id = emoji_role_dict[payload.emoji.id]
     except KeyError:
-        print("No role matching emoji id")
+        print(f'Error: No role matching emoji id {payload.emoji.id}')
         return
     role = guild.get_role(role_id)
     if role is None:
+        print(f'Error: Role with ID {role_id} does not exist')
         return
     # 'on_raw_reaction_remove' payload doesn't provide '.member'
     member = guild.get_member(payload.user_id)
@@ -64,7 +66,7 @@ async def on_raw_reaction_remove(payload):
     try:
         await member.remove_roles(role)
     except discord.HTTPException:
-        print("Error adding role")
+        print(f'Error: Adding role {role.name} to user {member.name} failed')
         return
     
 client.run(TOKEN)
