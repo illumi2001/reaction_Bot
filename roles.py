@@ -97,6 +97,11 @@ def main():
         global typed_safe_word, wins, losses #BANDAID SORTA
         if message.author == client.user:
             return
+        if message.content == "stop3000":
+            await client.close()
+            return
+        if message.content in ("k", "K"):
+            await message.reply("ys", mention_author=True)
         if message.author.id == sui:
             if message.content == safe_word:
                 # Too sleepy to clean this up but can reuse matt var i think
@@ -127,9 +132,6 @@ def main():
             else:
                 losses += 1
                 config['losses'] = losses
-
-        if message.content in ("k", "K"):
-            await message.reply("ys", mention_author=True)
 
     client.run(TOKEN)
     
