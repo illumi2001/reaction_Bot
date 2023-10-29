@@ -124,7 +124,7 @@ def main():
                 wins += 1
                 config['wins'] = wins
                 await user.send(f'type safe word to stop dms: "{safe_word}"')
-            elif random_number < 0.41:
+            elif random_number < 0.051:
                 wins += 1
                 config['wins'] = wins
                 random_message = random.choice(message_options)
