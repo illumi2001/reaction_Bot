@@ -25,7 +25,10 @@ async def on_ready():
     # Emotes to react with
     emotes = [
         '<:valorant:1166902590693462117>',
-        '<:league:1166903222582124604>'
+        '<:league:1166903222582124604>',
+        '<:case:1169395762690531478>',
+        '<:battlerite:1169394236668526782>',
+        '<:traitor:1169393487150587996>'
     ]
 
     # Add reactions to embed
