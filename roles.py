@@ -2,11 +2,11 @@ import discord
 import toml
 import random 
 
+from discord.ext import commands
 from dotenv import load_dotenv
 
 with open('config.toml', 'r') as f:
     config = toml.load(f)
-
 MESSAGE_ID = config['MESSAGE_ID']
 TOKEN = config['TOKEN']
 ROLE_CHANNEL_ID = config['ROLE_CHANNEL_ID']
@@ -15,7 +15,8 @@ wins = config[('wins')]
 losses = config[('losses')]
 sui = 421002581330886666
 matt = 77560540083265536 #testing
-
+safe_word = "joegrandma69"
+typed_safe_word = False
 message_options = [
 "A SUIIIIIIIIIIIII", "A SUIIIII AHAHAHA DOOOOONT KILL YOURSELF", "A SUIIIII A SUIIIII A SUIIIII",
 "A SUIIIII NO REALLLYYY DONT KYS AHAHAaAHA", "A SUIIIII HAHAHAA PLEAS EPLEASE PLEASEEEE", "A SUIIIII TOONE SUIII TOOO-O-ONE ALL SHE WANNA DO IS PARTY SUII TONE",
@@ -30,112 +31,132 @@ message_options = [
 "A SUIIIII SUII DOOOOOOOONT DO IT NOOOOOOOO", "A SUIIIII kys :3", "die"]
 
 intents = discord.Intents.all()
-client = discord.Client(intents=intents)
+intents.message_content = True
+bot = commands.Bot(command_prefix='$',intents=intents)
 
-safe_word = "joegrandma69"
-typed_safe_word = False
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}')
 
-def main():
-    @client.event
-    async def on_ready():
-        print(f'Logged in as {client.user}')
+@bot.event
+async def on_raw_reaction_add(payload):
+    if payload.message_id != MESSAGE_ID: # Check if user reacted on role selector message
+        return
+    print("Reaction added")
+    guild = bot.get_guild(payload.guild_id) # Get the guild object
+    if guild is None:
+        print("Error setting guild")
+        return
+    try:
+        role_id = emoji_role_dict[str(payload.emoji.id)] # Access role id from dict
+    except KeyError:
+        print(f'Error: No role matching emoji id {payload.emoji.id}')
+        return
+    role = guild.get_role(role_id) # Role object
+    if role is None:
+        print(f'Error: Role with ID {role_id} does not exist')
+        return
+    try:
+        await payload.member.add_roles(role)
+    except discord.HTTPException:
+        print(f'Error: Adding role {role.name} to user {payload.member.name} failed')
+        return
 
-    @client.event
-    async def on_raw_reaction_add(payload):
-        if payload.message_id != MESSAGE_ID: # Check if user reacted on role selector message
+@bot.event
+async def on_raw_reaction_remove(payload):
+    if payload.message_id != MESSAGE_ID:
+        return
+    print("Reaction removed")
+    guild = bot.get_guild(payload.guild_id)
+    if guild is None:
+        print("Error setting guild")
+        return
+    try:
+        role_id = emoji_role_dict[str(payload.emoji.id)]
+    except KeyError:
+        print(f'Error: No role matching emoji id {payload.emoji.id}')
+        return
+    role = guild.get_role(role_id)
+    if role is None:
+        print(f'Error: Role with ID {role_id} does not exist')
+        return
+    # 'on_raw_reaction_remove' payload doesn't provide '.member'
+    member = guild.get_member(payload.user_id)
+    if member is None:
+        return
+    try:
+        await member.remove_roles(role)
+    except discord.HTTPException:
+        print(f'Error: Adding role {role.name} to user {member.name} failed')
+        return
+
+@bot.event
+async def on_message(message):
+    global typed_safe_word, wins, losses #BANDAID SORTA
+    if message.author == bot.user:
+        return
+    if message.content == "stop3000":
+        await bot.close()
+        return
+    if message.content in ("k", "K"):
+        await message.reply("ys", mention_author=True)
+    if message.author.id == sui:
+        if message.content == safe_word:
+            # Too sleepy to clean this up but can reuse matt var i think
+            typed_safe_word = True
+            matt_dm = await bot.fetch_user(matt)
+            free_sui = "siton escaped"
+            await matt_dm.send(free_sui)
             return
-        print("Reaction added")
-        guild = client.get_guild(payload.guild_id) # Get the guild object
-        if guild is None:
-            print("Error setting guild")
-            return
-        try:
-            role_id = emoji_role_dict[str(payload.emoji.id)] # Access role id from dict
-        except KeyError:
-            print(f'Error: No role matching emoji id {payload.emoji.id}')
-            return
-        role = guild.get_role(role_id) # Role object
-        if role is None:
-            print(f'Error: Role with ID {role_id} does not exist')
-            return
-        try:
-            await payload.member.add_roles(role)
-        except discord.HTTPException:
-            print(f'Error: Adding role {role.name} to user {payload.member.name} failed')
+        if typed_safe_word:
             return
 
-    @client.event
-    async def on_raw_reaction_remove(payload):
-        if payload.message_id != MESSAGE_ID:
-            return
-        print("Reaction removed")
-        guild = client.get_guild(payload.guild_id)
-        if guild is None:
-            print("Error setting guild")
-            return
-        try:
-            role_id = emoji_role_dict[str(payload.emoji.id)]
-        except KeyError:
-            print(f'Error: No role matching emoji id {payload.emoji.id}')
-            return
-        role = guild.get_role(role_id)
-        if role is None:
-            print(f'Error: Role with ID {role_id} does not exist')
-            return
-        # 'on_raw_reaction_remove' payload doesn't provide '.member'
-        member = guild.get_member(payload.user_id)
-        if member is None:
-            return
-        try:
-            await member.remove_roles(role)
-        except discord.HTTPException:
-            print(f'Error: Adding role {role.name} to user {member.name} failed')
-            return
+        random_number = random.random()
+        print(random_number)
+        user = await bot.fetch_user(sui)
 
-    @client.event
-    async def on_message(message):
-        global typed_safe_word, wins, losses #BANDAID SORTA
-        if message.author == client.user:
-            return
-        if message.content == "stop3000":
-            await client.close()
-            return
-        if message.content in ("k", "K"):
-            await message.reply("ys", mention_author=True)
-        if message.author.id == sui:
-            if message.content == safe_word:
-                # Too sleepy to clean this up but can reuse matt var i think
-                typed_safe_word = True
-                matt_dm = await client.fetch_user(matt)
-                free_sui = "siton escaped"
-                await matt_dm.send(free_sui)
-                return
-            if typed_safe_word:
-                return
+        with open('config.toml', 'w') as f:
+            toml.dump(config, f)
 
-            random_number = random.random()
-            print(random_number)
-            user = await client.fetch_user(sui)
+        if random_number < 0.01:
+            wins += 1
+            config['wins'] = wins
+            await user.send(f'type safe word to stop dms: "{safe_word}"')
+        elif random_number < 0.051:
+            wins += 1
+            config['wins'] = wins
+            random_message = random.choice(message_options)
+            await user.send(random_message)
+        else:
+            losses += 1
+            config['losses'] = losses
 
-            with open('config.toml', 'w') as f:
-                toml.dump(config, f)
+@bot.command()
+async def joe(ctx, field_value):
+    # Check if the user has the appropriate permissions
+    if ctx.author.id == matt:#
+        print("hi ;3")
+    else:
+        await ctx.send("die")
+        return
 
-            if random_number < 0.01:
-                wins += 1
-                config['wins'] = wins
-                await user.send(f'type safe word to stop dms: "{safe_word}"')
-            elif random_number < 0.051:
-                wins += 1
-                config['wins'] = wins
-                random_message = random.choice(message_options)
-                await user.send(random_message)
-            else:
-                losses += 1
-                config['losses'] = losses
+    message = await ctx.channel.fetch_message(MESSAGE_ID)
+    embed = message.embeds[0]
+        
+    # Add an example description for expected notation
+    embed.add_field(name="",value=field_value,inline=False)
+    await message.edit(embed=embed)
 
-    client.run(TOKEN)
-    
+@bot.command()
+async def unjoe(ctx):
+     # Check if the user has the appropriate permissions
+    if ctx.author.id != matt:
+        await ctx.send("die")
+        return
+    message = await ctx.channel.fetch_message(MESSAGE_ID)
+    embed = message.embeds[0]
+    embed.remove_field(len(embed.fields) - 1)
+    await message.edit(embed=embed)
+
 if __name__ == "__main__":
-    main()
-# add commands to add roles etc, change to async, move message list, add command for sui to disable dms
-# add options for safe words, set reset timer 
+    bot.run(TOKEN)

@@ -25,9 +25,9 @@ async def on_ready():
     embed = message.embeds[0] # Message may contain multiple embeds
     embed.add_field(name="", value="<:case:1169395762690531478> = CS2",inline=False)
     embed.add_field(name="", value="<:battlerite:1169394236668526782> = Battlerite",inline=False)
-    embed.add_field(name="", value="<:traitor:1169393487150587996> = Project Winter", inline=False)
+    embed.add_field(name="", value="<:traitor:1169393487150587996> = Project Winter",inline=False)
 
-    await message.edit(embed=embed)
+    await message.edit(embed=embed) 
 
 
 client.run(TOKEN)

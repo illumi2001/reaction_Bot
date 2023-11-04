@@ -1,0 +1,36 @@
+#Emote data
+[league]
+emote_name = "league"
+emote_id = 1166903222582124604
+role_id = 1166946196892438538
+tag = "League of Legends"
+
+[valorant]
+emote_name = "valorant"
+emote_id = 1166902590693462117
+role_id = 1166945937550229524
+tag = "Valorant"
+
+[pwinter]
+emote_name = "traitor"
+emote_id = 1169393487150587996
+role_id = 1169394665359937576
+tag = "Project Winter"
+
+[battlerite]
+emote_name = "battlerite"
+emote_id = 1169394236668526782
+role_id = 1169394901939654697
+tag = "Battlerite"
+
+[valorant]
+emote_name = "cs2"
+emote_id = 1169395762690531478
+role_id = 1169394775909224568
+tag = "CS2"
+
+[erbs]
+emote_name = "hyejin"
+emote_id = 1170194242950410341
+role_id = 1170192617481449513
+tag = "Eternal Return"
