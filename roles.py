@@ -7,28 +7,19 @@ from dotenv import load_dotenv
 
 with open('config.toml', 'r') as f:
     config = toml.load(f)
+
 MESSAGE_ID = config['MESSAGE_ID']
 TOKEN = config['TOKEN']
 ROLE_CHANNEL_ID = config['ROLE_CHANNEL_ID']
 emoji_role_dict = config['emoji_roles']
 wins = config[('wins')]
 losses = config[('losses')]
+message_options = config['message_options']
+
 sui = 421002581330886666
 matt = 77560540083265536 #testing
 safe_word = "joegrandma69"
 typed_safe_word = False
-message_options = [
-"A SUIIIIIIIIIIIII", "A SUIIIII AHAHAHA DOOOOONT KILL YOURSELF", "A SUIIIII A SUIIIII A SUIIIII",
-"A SUIIIII NO REALLLYYY DONT KYS AHAHAaAHA", "A SUIIIII HAHAHAA PLEAS EPLEASE PLEASEEEE", "A SUIIIII TOONE SUIII TOOO-O-ONE ALL SHE WANNA DO IS PARTY SUII TONE",
-"A SUIIIII NOOOOO OOOOOOOOOO A SUIIIIII", "A SUIIIII FOR ME IS A TONE FOR THEEEE", "A SUIIIII PLEASEEEE MOLLY YOUR WHOLE TEAM IN A CLOSED SPACE",
-"A SUIIIII PLEASEEE PLEASE PLEASEEEEE KEEP TALKING", "A SUIIIII YOURE SO SEXY NOOO DONT DO IT", "A SUIIIII AHAHAAHA NOOOOO WE WOULD MISS YOU TOO MUCH", 
-"A SUIIIII PLEASEEEEE HAVE A LONG AND HAPPY LIFE PLEASEEEEEE", "A SUIIIII PLEASEEE PAY UP YOUR TWO BILLION DOLLARS", "A SUIIIII DONTTTT BE A PARRY ABUSER", 
-"A SUIIIII MASSSSSA SUIIII", "A SUIIIII MASSA MASSA SUIIIIIII", "A SUIIIII PLEAAAAAAASE IS THIS SO CALLED COUNTRY OF YOURS IN THE ROOM WITH US?",
-"A SUIIIII SUIII SUII I GOT SOMETHING TO TELL YOU YO SUI", "A SUIIIII DO YOU THINK WE WILL BE FRIENDS FOREVER", "A SUIIIII PLEEEEEEASE TRY NOT TO GAP THE OTHER TOP LANER SO HARD",
-"A SUIIIII PLEASEEEEE GO ON YOUR STORY IS SO INTERESTING", "A SUIIIII YO I GOT A QUESTION", "A SUIIIII DO YOU HEAR THE VOICES", "A SUIIIII GIVE IN TO THE VOICES", "A SUIIIII IM IN YOUR WALLS",
-"I WAS CRAZYYY ONCE", "CRAZY ?", "A RUBBER ROOM", "I WAS CRAZY ONCE", "A SUIIIII S)_D(GYHS)DGIBHLYUFCKTUXC", 
-"A SUIIIII A SUIIII AS UIIIIIIIIIIIIIIIII", "A SUIIIII SUII SUII SUII SUII", "A SUIIIII YOU MUSTA FORGOT AB THE TOOOOONE", 
-"A SUIIIII SUII DOOOOOOOONT DO IT NOOOOOOOO", "A SUIIIII kys :3", "die"]
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -95,6 +86,8 @@ async def on_message(message):
     global typed_safe_word, wins, losses #BANDAID SORTA
     if message.author == bot.user:
         return
+    if message.content.startswith('$'):
+        await bot.process_commands(message)  # Let discord.py handle the commands
     if message.content == "stop3000":
         await bot.close()
         return
@@ -134,7 +127,7 @@ async def on_message(message):
 @bot.command()
 async def joe(ctx, field_value):
     # Check if the user has the appropriate permissions
-    if ctx.author.id == matt:#
+    if ctx.author.id == matt: 
         print("hi ;3")
     else:
         await ctx.send("die")
@@ -158,5 +151,12 @@ async def unjoe(ctx):
     embed.remove_field(len(embed.fields) - 1)
     await message.edit(embed=embed)
 
-if __name__ == "__main__":
-    bot.run(TOKEN)
+@bot.command()
+async def test(ctx, arg):
+    await ctx.send(arg)
+
+@bot.command()
+async def clean(ctx, amount: int):
+
+
+bot.run(TOKEN)
