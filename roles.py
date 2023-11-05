@@ -8,16 +8,9 @@ from dotenv import load_dotenv
 with open('config.toml', 'r') as f:
     config = toml.load(f)
 
-MESSAGE_ID = config['MESSAGE_ID']
-TOKEN = config['TOKEN']
-ROLE_CHANNEL_ID = config['ROLE_CHANNEL_ID']
-emoji_role_dict = config['emoji_roles']
-wins = config[('wins')]
-losses = config[('losses')]
-message_options = config['message_options']
+for key, value in config.items():
+    globals()[key] = value
 
-sui = 421002581330886666
-matt = 77560540083265536 #testing
 safe_word = "joegrandma69"
 typed_safe_word = False
 
@@ -94,14 +87,12 @@ async def on_message(message):
     if message.content in ("k", "K"):
         await message.reply("ys", mention_author=True)
     if message.author.id == sui:
+        if typed_safe_word:
+            return
         if message.content == safe_word:
-            # Too sleepy to clean this up but can reuse matt var i think
             typed_safe_word = True
             matt_dm = await bot.fetch_user(matt)
-            free_sui = "siton escaped"
-            await matt_dm.send(free_sui)
-            return
-        if typed_safe_word:
+            await matt_dm.send("siton escaped")
             return
 
         random_number = random.random()
@@ -128,22 +119,17 @@ async def on_message(message):
 async def joe(ctx, field_value):
     # Check if the user has the appropriate permissions
     if ctx.author.id == matt: 
-        print("hi ;3")
+        message = await ctx.channel.fetch_message(MESSAGE_ID)
+        embed = message.embeds[0]
+        # Add an example description for expected notation
+        embed.add_field(name="",value=field_value,inline=False)
+        await message.edit(embed=embed)
     else:
-        await ctx.send("die")
-        return
-
-    message = await ctx.channel.fetch_message(MESSAGE_ID)
-    embed = message.embeds[0]
-        
-    # Add an example description for expected notation
-    embed.add_field(name="",value=field_value,inline=False)
-    await message.edit(embed=embed)
+        await ctx.send("hahaHA")
 
 @bot.command()
 async def unjoe(ctx):
-     # Check if the user has the appropriate permissions
-    if ctx.author.id != matt:
+    if ctx.author.id != matt: # Check if the user has the appropriate permissions
         await ctx.send("die")
         return
     message = await ctx.channel.fetch_message(MESSAGE_ID)
@@ -157,6 +143,14 @@ async def test(ctx, arg):
 
 @bot.command()
 async def clean(ctx, amount: int):
-
+    if ctx.author.id == matt:
+        messages = []
+        async for message in ctx.message.channel.history(limit=amount + 1):
+            messages.append(message)
+        for message in messages:
+            await message.delete()
+        await ctx.send(f"Deleted {amount} messages.")
+    else:
+        await ctx.send("plz stop troll")
 
 bot.run(TOKEN)
