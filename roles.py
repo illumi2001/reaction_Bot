@@ -153,4 +153,14 @@ async def clean(ctx, amount: int):
     else:
         await ctx.send("plz stop troll")
 
+@bot.command()
+async def flip(ctx):
+    flip_number = random.random()
+    if flip_number < 0.01:
+        await ctx.reply("Reply hazy, try again")
+    elif flip_number < 0.51:
+        await ctx.reply("Heads")
+    else:
+        await ctx.reply("Tails")
+    
 bot.run(TOKEN)
