@@ -5,7 +5,7 @@ import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
-with open('config.toml', 'r') as f:
+with open('config.toml', 'r', encoding='utf-8') as f:
     config = toml.load(f)
 
 for key, value in config.items():
@@ -81,6 +81,15 @@ async def on_message(message):
         return
     if message.content.startswith('$'):
         await bot.process_commands(message)  # Let discord.py handle the commands
+    if (
+        message.author.id in [matt, kevin, webhook_bot, kevin_bot] # Change to variables so recognizable
+        and any(keyword in message.content for keyword in message_mapping)
+    ):
+        for keyword, channel_name in message_mapping.items():
+            if keyword in message.content:
+                boss_channel = bot.get_channel(BOSS_CHANNEL_ID)
+                await boss_channel.edit(name=channel_name)
+                break  # Stop searching after the first match
     if message.content == "stop3000":
         await bot.close()
         return
