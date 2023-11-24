@@ -1,7 +1,8 @@
+import asyncio
 import discord
 import toml
 import random 
-
+import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -21,6 +22,16 @@ bot = commands.Bot(command_prefix='$',intents=intents)
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
+    while True:
+        today = datetime.date.today()
+        for user in config["users"].values():
+            name = user["name"]
+            birthday = user["birthday"]
+            birthday_calc = birthday.replace(birthday[0:4], str(today.year))
+            if birthday and (datetime.date.fromisoformat(birthday_calc) - today).days == 7:
+                channel = bot.get_channel(1120882608084111430) # links channel
+                await channel.send(f"We got big BIRTHDAY COMING UP FOR, {name}!")
+        await asyncio.sleep(86400)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -82,7 +93,7 @@ async def on_message(message):
     if message.content.startswith('$'):
         await bot.process_commands(message)  # Let discord.py handle the commands
     if (
-        message.author.id in [matt, kevin, webhook_bot, kevin_bot] # Change to variables so recognizable
+        message.author.id in [users['matt']['id'], users['kevin']['id'], webhook_bot, kevin_bot] # Change to variables so recognizable
         and any(keyword in message.content for keyword in message_mapping)
     ):
         for keyword, channel_name in message_mapping.items():
@@ -95,18 +106,18 @@ async def on_message(message):
         return
     if message.content in ("k", "K"):
         await message.reply("ys", mention_author=True)
-    if message.author.id == sui:
+    if message.author.id == users['sui']['id']:
         if typed_safe_word:
             return
         if message.content == safe_word:
             typed_safe_word = True
-            matt_dm = await bot.fetch_user(matt)
+            matt_dm = await bot.fetch_user(users['matt']['id'])
             await matt_dm.send("siton escaped")
             return
 
         random_number = random.random()
         print(random_number)
-        user = await bot.fetch_user(sui)
+        user = await bot.fetch_user(users['sui']['id'])
 
         with open('config.toml', 'w') as f:
             toml.dump(config, f)
@@ -127,7 +138,7 @@ async def on_message(message):
 @bot.command()
 async def joe(ctx, field_value):
     # Check if the user has the appropriate permissions
-    if ctx.author.id == matt: 
+    if ctx.author.id == users['matt']['id']: 
         message = await ctx.channel.fetch_message(MESSAGE_ID)
         embed = message.embeds[0]
         # Add an example description for expected notation
@@ -138,7 +149,7 @@ async def joe(ctx, field_value):
 
 @bot.command()
 async def unjoe(ctx):
-    if ctx.author.id != matt: # Check if the user has the appropriate permissions
+    if ctx.author.id != users['matt']['id']: # Check if the user has the appropriate permissions
         await ctx.send("die")
         return
     message = await ctx.channel.fetch_message(MESSAGE_ID)
@@ -152,7 +163,7 @@ async def test(ctx, arg):
 
 @bot.command()
 async def clean(ctx, amount: int):
-    if ctx.author.id == matt:
+    if ctx.author.id == users['matt']['id']:
         messages = []
         async for message in ctx.message.channel.history(limit=amount + 1):
             messages.append(message)
