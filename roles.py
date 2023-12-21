@@ -182,5 +182,32 @@ async def flip(ctx):
         await ctx.reply("Heads")
     else:
         await ctx.reply("Tails")
+
+@bot.command(name='remind', help='Set a reminder. Usage: $remind <time> <message>')
+async def remind(ctx, time, *, message):
+    try:
+        # Convert provided time to seconds
+        seconds = parse_time(time)
+
+        await asyncio.sleep(seconds)
+        await ctx.send(f"{ctx.author.mention}, here's your reminder: {message}")
+    except ValueError as e:
+        await ctx.send(f"Invalid time format. Please use a valid format like '1d2h3m' (1 day, 2 hours, 3 minutes)")
+        
+def parse_time(time_str):
+    total_seconds = 0
+    parts = {'d': 86400, 'h': 3600, 'm': 60}
     
+    current_number = ''
+    for char in time_str:
+        if char.isdigit():
+            current_number += char
+        elif char in parts:
+            total_seconds += int(current_number) * parts[char]
+            current_number = ''
+        else:
+            raise ValueError(f"Invalid character in time format: {char}")
+    return total_seconds
+
+
 bot.run(TOKEN)
