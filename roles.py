@@ -188,7 +188,7 @@ async def remind(ctx, time, *, message):
     try:
         # Convert provided time to seconds
         seconds = parse_time(time)
-
+        await ctx.send(f"Reminder set for {time}")
         await asyncio.sleep(seconds)
         await ctx.send(f"{ctx.author.mention}, here's your reminder: {message}")
     except ValueError as e:
